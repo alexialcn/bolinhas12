@@ -14,14 +14,28 @@ public class BolinhasService {
     public List<String> ladoBalancaMaisPesado = new ArrayList<>();
 
     public Bolinhas resolveDesafioBolinhas(int totalDeBolinhas, int divisaoDePesagens) {
-        List<Bolinhas> bolinhas = iniciaBolinhas(12);
+        List<Bolinhas> bolinhas = iniciaBolinhas(totalDeBolinhas);
 
         while ((bolinhas.size()) % 2 == 0) {
+            if (bolinhas.size() == 2) {
+                return pesagemEspecial(bolinhas);
+
+            }
+
             bolinhas = pesagem(bolinhas, divisaoDePesagens);
         }
 
         log.info("Processo da ultima pesagem iniciada");
         return ultimaPesagem(bolinhas);
+
+    }
+
+    private Bolinhas pesagemEspecial(List<Bolinhas> bolinhas) {
+        String ladoMaisPesado = pegaLadoMaisPesado();
+        if (ladoMaisPesado.equals("ESQUERDA")) {
+            return bolinhas.get(0);
+        }
+        return bolinhas.get(1);
     }
 
     private List<Bolinhas> iniciaBolinhas(int totalDeBolinhas) {
