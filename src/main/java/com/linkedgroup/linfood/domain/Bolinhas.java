@@ -12,6 +12,5 @@ import java.util.Optional;
 public class Bolinhas {
 
     private int numBolinha;
-    private PesoBolinha pesoBolinha;
 
 }

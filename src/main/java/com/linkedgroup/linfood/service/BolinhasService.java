@@ -1,7 +1,6 @@
 package com.linkedgroup.linfood.service;
 
 import com.linkedgroup.linfood.domain.Bolinhas;
-import com.linkedgroup.linfood.domain.PesoBolinha;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class BolinhasService {
     private List<Bolinhas> iniciaBolinhas(int totalDeBolinhas) {
         List<Bolinhas> bolinhas = new ArrayList<>();
         for (int i = 1; i <= totalDeBolinhas; i++) {
-            bolinhas.add(new Bolinhas(i, PesoBolinha.ANALISANDO));
+            bolinhas.add(new Bolinhas(i));
         }
         ladoBalancaMaisPesado.add("DIREITA");
         ladoBalancaMaisPesado.add("ESQUERDA");
