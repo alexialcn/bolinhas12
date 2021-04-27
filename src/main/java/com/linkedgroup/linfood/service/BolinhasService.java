@@ -1,92 +1,58 @@
 package com.linkedgroup.linfood.service;
 
+import com.linkedgroup.linfood.domain.Balanca;
 import com.linkedgroup.linfood.domain.Bolinhas;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Service
 public class BolinhasService {
 
-    public List<String> ladoBalancaMaisPesado = new ArrayList<>();
+    Balanca balanca = new Balanca();
 
-    public Bolinhas resolveDesafioBolinhas(int totalDeBolinhas, int divisaoDePesagens) {
-        List<Bolinhas> bolinhas = iniciaBolinhas(totalDeBolinhas);
 
-        while ((bolinhas.size()) % 2 == 0) {
-            if (bolinhas.size() == 2) {
-                return pesagemEspecial(bolinhas);
+    public Bolinhas resolveDesafioBolinhas(int numBolinhas, int numDivisoesDeBolinhas) {
+        List<Bolinhas> bolinhas = new Bolinhas().iniciaProcessoBolinhas(numBolinhas);
 
-            }
-
-            bolinhas = pesagem(bolinhas, divisaoDePesagens);
+        while (bolinhas.size() % 2 == 0) {
+            bolinhas = pesagem(bolinhas, numDivisoesDeBolinhas);
+            log.info("bolinhas: {}", bolinhas);
         }
 
-        log.info("Processo da ultima pesagem iniciada");
         return ultimaPesagem(bolinhas);
-
     }
 
-    private Bolinhas pesagemEspecial(List<Bolinhas> bolinhas) {
-        String ladoMaisPesado = pegaLadoMaisPesado();
-        if (ladoMaisPesado.equals("ESQUERDA")) {
-            return bolinhas.get(0);
-        }
-        return bolinhas.get(1);
-    }
+    private List<Bolinhas> pesagem(List<Bolinhas> bolinhas, int numDivisoesDeBolinhas) {
+        List<Bolinhas> listaBalancaEsquerda = bolinhas.stream().limit(bolinhas.size() / numDivisoesDeBolinhas).collect(Collectors.toList());
 
-    private List<Bolinhas> iniciaBolinhas(int totalDeBolinhas) {
-        List<Bolinhas> bolinhas = new ArrayList<>();
-        for (int i = 1; i <= totalDeBolinhas; i++) {
-            bolinhas.add(new Bolinhas(i));
-        }
-        ladoBalancaMaisPesado.add("DIREITA");
-        ladoBalancaMaisPesado.add("ESQUERDA");
-        return bolinhas;
-    }
-
-    private List<Bolinhas> pesagem(List<Bolinhas> bolinhas, int divPesagens) {
-        List<Bolinhas> listaBalancaEsquerda
-                = bolinhas.stream().limit(bolinhas.size() / 2).collect(Collectors.toList());
-
-        String ladoMaisPesado = pegaLadoMaisPesado();
-        log.info("O lado mais pesado é: {}", ladoMaisPesado);
-
-        if (ladoMaisPesado.equals("ESQUERDA")) {
+        log.info("Pesando bolinhas..");
+        if (balanca.resultadoLadoBalanca().equals("ESQUERDA")) {
             return listaBalancaEsquerda;
         }
-        return bolinhas.stream().filter(e -> !listaBalancaEsquerda.contains(e)).collect(Collectors.toList());
+
+        return bolinhas.stream().filter(c -> !listaBalancaEsquerda.contains(c)).collect(Collectors.toList());
     }
 
     private Bolinhas ultimaPesagem(List<Bolinhas> bolinhas) {
+        balanca.adicionaTipoDeLado("IGUAL");
+        log.info("Bolinhas de numero ímpar, isolando uma..");
+        Bolinhas bolinhaSolitaria = bolinhas.stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Erro ao pesar a bolinha pela ultima vez"));
+        log.info("A bolinha retirada foi: {}", bolinhaSolitaria);
+        log.info("Realizando a ultima pesagem..");
+        String resultadoDaBalanca = balanca.resultadoLadoBalanca();
 
-        ladoBalancaMaisPesado.add("IGUAL");
-
-        log.info("Numero ímpar de bolinhas, retirando uma...");
-        final Bolinhas bolinhaSolitaria = bolinhas.stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Erro ao fazer a retirada da bolinha"));
-        log.info("bolinha retirada: {}", bolinhaSolitaria.getNumBolinha());
-
-        log.info("Realizando a ultima pesagem");
-        String ultimaPesagem = pegaLadoMaisPesado();
-
-        log.info("O resultado da ultima pesagem foi: {}", ultimaPesagem);
-        if (ultimaPesagem.equals("IGUAL")) {
+        if (resultadoDaBalanca.equals("IGUAL")) {
             return bolinhaSolitaria;
         }
 
-        List<Bolinhas> bolinhasUltimaPesagem = bolinhas.stream().filter(b -> b.getNumBolinha() != bolinhaSolitaria.getNumBolinha()).collect(Collectors.toList());
-        if (ultimaPesagem.equals("ESQUERDA")) {
-            return bolinhasUltimaPesagem.get(0);
+        List<Bolinhas> bolinhasFiltradas = bolinhas.stream().filter(b -> b.getNumBolinhas() != bolinhaSolitaria.getNumBolinhas()).collect(Collectors.toList());
+        if (resultadoDaBalanca.equals("ESQUERDA")) {
+            return bolinhasFiltradas.get(0);
         }
-        return bolinhasUltimaPesagem.get(1);
+        return bolinhasFiltradas.get(1);
     }
-
-    private String pegaLadoMaisPesado() {
-        return ladoBalancaMaisPesado.get(new Random().nextInt(ladoBalancaMaisPesado.size()));
-    }
-
-
 }

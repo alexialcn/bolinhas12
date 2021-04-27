@@ -12,7 +12,7 @@ public class LinfoodApplication {
 
         BolinhasService service = new BolinhasService();
 
-        log.info("A Bolinha mais pesada no desafio é : {}", service.resolveDesafioBolinhas(12, 2).getNumBolinha());
+        log.info("bolinhas mais pesada: {}", service.resolveDesafioBolinhas(12, 2).getNumBolinhas());
     }
 }
 
